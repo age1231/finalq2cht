@@ -1,0 +1,43 @@
+OOP2 Final - Sıralama İşlemi (Sort + ComboBox) Açıklamalı Rehber
+Bu belge, OOP2 final sınavında sorulan 'Sort işlemi ComboBox ile yapılacak' kısmını açıklar. Hiç kod bilmeyen birine göre adım adım anlatılmıştır.
+1️⃣ Qt Designer'da Yapılacaklar
+1. QRadioButton ekle → Üzerine 'Sort' yaz → objectName: sortRadio
+2. QComboBox ekle → objectName: sortComboBox
+3. ComboBox içine iki seçenek ekle:
+   - Ascending
+   - Descending
+4. ComboBox'ı ilk başta devre dışı bırak. (Bu Qt Designer'da yapılamaz, kodda yapılacak.)
+2️⃣ Python Kodda Yapılacaklar
+Kodlar app_logic.py içinde yazılır.
+🔹 ComboBox Başlangıçta Devre Dışı (Disabled)
+Bu kodu __init__ fonksiyonunun içine yaz:
+
+self.sortComboBox.setEnabled(False)
+🔹 Sort Seçilince ComboBox Aktif Olsun
+Bu kod perform_operation() fonksiyonunun içine yazılır:
+
+if self.sortRadio.isChecked():
+    self.sortComboBox.setEnabled(True)
+🔹 ComboBox'a Göre Sıralama
+self.sortComboBox.currentText() ile seçim kontrol edilir:
+
+if self.sortComboBox.currentText() == "Ascending":
+    result = sorted(self.numbers)
+    self.statusLabel.setText("Sorted in ascending order")
+else:
+    result = sorted(self.numbers, reverse=True)
+    self.statusLabel.setText("Sorted in descending order")
+
+self.resultTextEdit.setPlainText(", ".join(map(str, result)))
+🔹 ComboBox Seçildiğinde Fonksiyon Çalışsın
+Bu satırı __init__ fonksiyonu içine yaz:
+
+self.sortComboBox.currentIndexChanged.connect(self.perform_operation)
+🧪 Örnek: Liste [42, 7, 99]
+- Ascending → 7, 42, 99
+- Descending → 99, 42, 7
+🎯 Özet
+- ComboBox sadece Sort seçilince aktifleşir.
+- ComboBox seçimi algılanır, `Ascending` veya `Descending` seçimine göre sıralama yapılır.
+- Sonuç `resultTextEdit` kutusuna yazılır.
+- Durum mesajı `statusLabel`'a yazılır.

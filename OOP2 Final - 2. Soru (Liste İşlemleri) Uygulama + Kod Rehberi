@@ -1,0 +1,116 @@
+OOP2 Final - 2. Soru (Liste İşlemleri) Uygulama + Kod Rehberi
+Bu belge, OOP2 final sınavındaki 2. sorunun Qt Designer arayüzü oluşturma sürecinden Python kodlamasına kadar tüm adımlarını içerir. Kodlama bilmeyen biri için adım adım, hatasız uygulama rehberidir.
+1️⃣ Qt Designer - Arayüz Çizimi ve Yapılandırma
+1. Qt Designer'ı aç → 'Main Window' seç → OK
+2. Widget Box panelinden aşağıdaki bileşenleri sürükleyip yerleştir:
+
+Widget	Görev	objectName
+QPushButton	Sayı üretme	generateButton
+QTextEdit	Sayıları gösterme	numbersTextEdit
+QTextEdit	Sonuçları gösterme	resultTextEdit
+QLabel	Durum mesajı (boş)	statusLabel
+QRadioButton	Toplama	sumRadio
+QRadioButton	Ortalama	avgRadio
+QRadioButton	Maksimum	maxRadio
+QRadioButton	Sıralama	sortRadio
+QComboBox	Sıralama yönü	sortComboBox
+
+3. ComboBox içerisine şu iki seçeneği ekle:
+   - Ascending
+   - Descending
+4. Grid layout kullanımı zorunlu değildir ama önerilir. Widget’ları düzenli yerleştirin.
+5. Dosyayı 'list_ui.ui' olarak kaydet. Sonraki adım: bu .ui dosyasını Python ile bağlamak.
+2️⃣ Python Dosyaları ve Kodlar
+🔹 logic.py
+import random
+
+def generate_random_numbers():
+    return [random.randint(0, 99) for _ in range(40)]
+
+def calculate_sum(numbers):
+    return sum(numbers)
+
+def calculate_avg(numbers):
+    return sum(numbers) / len(numbers)
+
+def calculate_max(numbers):
+    return max(numbers)
+
+def sort_numbers(numbers, ascending=True):
+    return sorted(numbers, reverse=not ascending)
+🔹 app_logic.py
+from PyQt5.QtWidgets import QMainWindow
+from PyQt5 import uic
+from logic import generate_random_numbers, calculate_sum, calculate_avg, calculate_max, sort_numbers
+
+class ListOperationApp(QMainWindow):
+    def __init__(self):
+        super().__init__()
+        uic.loadUi("list_ui.ui", self)
+        self.numbers = []
+
+        self.sumRadio.setEnabled(False)
+        self.avgRadio.setEnabled(False)
+        self.maxRadio.setEnabled(False)
+        self.sortRadio.setEnabled(False)
+        self.sortComboBox.setEnabled(False)
+
+        self.generateButton.clicked.connect(self.generate_numbers)
+        self.sumRadio.toggled.connect(self.perform_operation)
+        self.avgRadio.toggled.connect(self.perform_operation)
+        self.maxRadio.toggled.connect(self.perform_operation)
+        self.sortRadio.toggled.connect(self.perform_operation)
+        self.sortComboBox.currentIndexChanged.connect(self.perform_operation)
+
+    def generate_numbers(self):
+        self.numbers = generate_random_numbers()
+        self.numbersTextEdit.setPlainText(", ".join(map(str, self.numbers)))
+        self.statusLabel.setText("Numbers are generated")
+        self.enable_operations()
+
+    def enable_operations(self):
+        self.sumRadio.setEnabled(True)
+        self.avgRadio.setEnabled(True)
+        self.maxRadio.setEnabled(True)
+        self.sortRadio.setEnabled(True)
+        self.sortComboBox.setEnabled(False)
+
+    def perform_operation(self):
+        if self.sumRadio.isChecked():
+            result = calculate_sum(self.numbers)
+            self.resultTextEdit.setPlainText(str(result))
+            self.statusLabel.setText("Sum calculated")
+
+        elif self.avgRadio.isChecked():
+            result = calculate_avg(self.numbers)
+            self.resultTextEdit.setPlainText(str(result))
+            self.statusLabel.setText("Average calculated")
+
+        elif self.maxRadio.isChecked():
+            result = calculate_max(self.numbers)
+            self.resultTextEdit.setPlainText(str(result))
+            self.statusLabel.setText("Maximum calculated")
+
+        elif self.sortRadio.isChecked():
+            self.sortComboBox.setEnabled(True)
+            if self.sortComboBox.currentText() == "Ascending":
+                result = sort_numbers(self.numbers, ascending=True)
+            else:
+                result = sort_numbers(self.numbers, ascending=False)
+            self.resultTextEdit.setPlainText(", ".join(map(str, result)))
+            self.statusLabel.setText("Sorted")
+🔹 main.py
+from PyQt5.QtWidgets import QApplication
+from app_logic import ListOperationApp
+import sys
+
+app = QApplication(sys.argv)
+window = ListOperationApp()
+window.show()
+sys.exit(app.exec_())
+📌 Önemli Notlar
+- .ui dosyasını çizmek yeterli değildir. objectName'ler doğru verilmelidir.
+- Widget'lar yerleştirildikten sonra `File > Save As` ile .ui dosyası olarak kaydedilmeli.
+- Python tarafında butonlara `.clicked.connect(...)` ile bağlantı yapılmalıdır.
+- layout kullanmak kodda zorunlu değil ama görsel düzen sağlar.
+- Kodda `.setPlainText(...)` ile kutulara yazı yazılır, `.setText(...)` ile QLabel güncelleni

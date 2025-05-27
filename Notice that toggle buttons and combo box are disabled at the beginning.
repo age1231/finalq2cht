@@ -1,0 +1,54 @@
+Notice that toggle buttons and combo box are disabled at the beginning.
+
+PyQt5 - Başlangıçta Toggle Butonlar ve ComboBox Devre Dışı Nasıl Yapılır?
+Bu belge, OOP2 final sınavındaki GUI sorusunda geçen 'toggle buttons and combo box are disabled at the beginning' cümlesinin ne anlama geldiğini açıklar ve sıfırdan, hiç kod bilmeyen biri için adım adım nasıl yapılacağını öğretir.
+🔹 Ne Demek Bu?
+Bu cümle, uygulama açıldığında bazı butonların (Topla, Ortalama, Max, Sort) ve ComboBox'un (Ascending/Descending) **başta devre dışı** olması gerektiğini ifade eder. Yani kullanıcı daha sayı üretmeden, bu butonlara tıklayamamalı.
+❓ Bunu Qt Designer’da mı yaparız, Python Kodda mı?
+- Qt Designer sadece görsel tasarımı yapar. Buton nereye yerleştirilecek, kutu büyüklüğü ne kadar olacak gibi.
+- Ancak bir bileşeni devre dışı bırakmak (disable) ya da açmak (enable) davranışla ilgilidir, bu **kodda yapılır**.
+✅ 1. Başta Butonları Devre Dışı Bırak
+Uygulama ilk açıldığında bu satırları yaz:
+
+self.sumRadio.setEnabled(False)
+self.avgRadio.setEnabled(False)
+self.maxRadio.setEnabled(False)
+self.sortRadio.setEnabled(False)
+self.sortComboBox.setEnabled(False)
+📍 Bu satırlar **app_logic.py** dosyasındaki `__init__()` fonksiyonunun içine yazılmalıdır.
+📍 Nereye Yazılacak?
+app_logic.py içindeki bu bölüme eklersin:
+
+class ListOperationApp(QMainWindow):
+    def __init__(self):
+        super().__init__()
+        uic.loadUi("list_ui.ui", self)
+
+        # İşte buraya EKLE:
+        self.sumRadio.setEnabled(False)
+        self.avgRadio.setEnabled(False)
+        self.maxRadio.setEnabled(False)
+        self.sortRadio.setEnabled(False)
+        self.sortComboBox.setEnabled(False)
+
+✅ 2. Kullanıcı sayı üretince aktif et
+Kullanıcı Generate Numbers butonuna tıkladığında, aşağıdaki fonksiyon çağrılır:
+
+def enable_operations(self):
+    self.sumRadio.setEnabled(True)
+    self.avgRadio.setEnabled(True)
+    self.maxRadio.setEnabled(True)
+    self.sortRadio.setEnabled(True)
+    self.sortComboBox.setEnabled(False)  # Sadece sort seçilince açılacak
+📍 enable_operations() fonksiyonu nerede çağrılır?
+Kullanıcı Generate Numbers butonuna bastığında çalışacak `generate_numbers()` fonksiyonu içinde çağrılır:
+
+def generate_numbers(self):
+    self.numbers = generate_random_numbers()
+    self.numbersTextEdit.setPlainText(", ".join(map(str, self.numbers)))
+    self.statusLabel.setText("Numbers are generated")
+    self.enable_operations()
+🎯 SONUÇ
+- Başta butonlar ve ComboBox devre dışı olmalı → `.setEnabled(False)`
+- Sayılar üretildikten sonra `enable_operations()` çağrılarak butonlar aktifleşmeli
+- Bu mantık GUI kontrol davranışını sağlar. Sınavda bu mantık puan kazandırır!
